@@ -194,7 +194,9 @@ const UserForm: FC = () => {
                         <Select options={genderOptions} {...field} />
                       )}
                     />
-                    <Text color="red.500">{errors.gender?.message}</Text>
+                    <Text color="red.500">
+                      {errors.gender ? "Please Select A Gender" : null}
+                    </Text>
                   </FormControl>
                 </GridItem>
 
