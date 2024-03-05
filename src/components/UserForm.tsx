@@ -172,7 +172,18 @@ const UserForm: FC = () => {
                     <Text color="red.500">{errors.phoneNumber?.message}</Text>
                   </FormControl>
                 </GridItem>
-
+              </Grid>
+              <Heading as="h4" size="md" my={8}>
+                Other Information
+              </Heading>
+              <Grid
+                gap={8}
+                templateColumns={[
+                  "repeat(1, 1fr)",
+                  "repeat(2, 1fr)",
+                  "repeat(2, 1fr)",
+                ]}
+              >
                 <GridItem>
                   <FormControl isInvalid={!!errors.gender}>
                     <FormLabel>Gender</FormLabel>
@@ -205,7 +216,7 @@ const UserForm: FC = () => {
                   </FormControl>
                 </GridItem>
 
-                <GridItem colSpan={[1, 2, 2]}>
+                <GridItem>
                   <FormControl>
                     <FormLabel>Tech Stack</FormLabel>
                     {fields.map((item, index) => (
