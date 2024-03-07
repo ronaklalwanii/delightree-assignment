@@ -1,6 +1,7 @@
 import { useState, FC } from "react";
 
 import {
+  Box,
   Grid,
   Flex,
   Card,
@@ -14,18 +15,26 @@ import {
   FormLabel,
   FormControl,
 } from "@chakra-ui/react";
-import { Select } from "chakra-react-select";
+import {
+  Select,
+  OptionProps,
+  chakraComponents,
+  DropdownIndicatorProps,
+} from "chakra-react-select";
 
 import * as Yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   useForm,
-  useFieldArray,
   Controller,
   FormProvider,
+  useFieldArray,
 } from "react-hook-form";
 
+import { BiCheck, BiSolidDownArrow } from "react-icons/bi";
+
 import UserDetails from "./UserDetails";
+import { selectStyles } from "./selectStyles";
 
 import type { UserFormData } from "../types/user";
 
@@ -77,6 +86,24 @@ const genderOptions = [
   { value: "other", label: "Other" },
 ];
 
+const customComponents = {
+  Option: ({ children, ...props }: OptionProps) => {
+    return (
+      <chakraComponents.Option {...props}>
+        <Flex justifyContent="space-between" alignItems="center" width="100%">
+          <Text>{children}</Text>
+          {props.isSelected && <BiCheck size={24} color="green" />}
+        </Flex>
+      </chakraComponents.Option>
+    );
+  },
+  DropdownIndicator: (props: DropdownIndicatorProps) => (
+    <Box as={chakraComponents.DropdownIndicator} {...props} bg="#D9D9D9">
+      <BiSolidDownArrow size={14} />
+    </Box>
+  ),
+};
+
 const UserForm: FC = () => {
   const hookFormMethods = useForm<UserFormData>({
     resolver: yupResolver(validationSchema),
@@ -88,6 +115,7 @@ const UserForm: FC = () => {
   const {
     control,
     setValue,
+    getValues,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = hookFormMethods;
@@ -191,7 +219,16 @@ const UserForm: FC = () => {
                       name="gender"
                       control={control}
                       render={({ field }) => (
-                        <Select options={genderOptions} {...field} />
+                        <Select
+                          variant="filled"
+                          options={genderOptions}
+                          chakraStyles={selectStyles}
+                          components={customComponents}
+                          focusBorderColor={
+                            errors.gender ? "red.500" : "#D9D9D9"
+                          }
+                          {...field}
+                        />
                       )}
                     />
                     <Text color="red.500">
@@ -222,11 +259,29 @@ const UserForm: FC = () => {
                   <FormControl>
                     <FormLabel>Tech Stack</FormLabel>
                     {fields.map((item, index) => (
-                      <Flex key={item.id} alignItems="center" mt={2}>
+                      <Flex key={item.id} mt={2}>
                         <Controller
                           name={`techStack.${index}`}
                           control={control}
-                          render={({ field }) => <Input {...field} />}
+                          render={({ field }) => {
+                            return (
+                              <Flex width="100%" direction="column">
+                                <Input
+                                  isInvalid={
+                                    !!errors.techStack &&
+                                    getValues("techStack").indexOf("") === index
+                                  }
+                                  {...field}
+                                />
+                                <Text color="red.500">
+                                  {errors.techStack &&
+                                    getValues("techStack").indexOf("") ===
+                                      index &&
+                                    "Tech Stack field cannot be empty"}
+                                </Text>
+                              </Flex>
+                            );
+                          }}
                         />
                         {index !== 0 && (
                           <Button
@@ -247,7 +302,6 @@ const UserForm: FC = () => {
                     >
                       Add Tech Stack
                     </Button>
-                    <Text color="red.500">{errors.techStack?.message}</Text>
                   </FormControl>
                 </GridItem>
               </Grid>
